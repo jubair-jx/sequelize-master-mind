@@ -61,10 +61,91 @@ export const getAllUsers = asyncHandler(async (req: Request, res: Response) => {
         attributes: ["bio", "address", "createdAt", "updatedAt", "userId"], // specify the fields you want from UserProfile
       },
     ],
+    order: [["age", "ASC"]],
   });
   return ApiResponse(res, {
     statusCode: 200,
-    message: "User data fetched successfully",
+    message: "Users data fetched successfully",
     data: result,
+  });
+});
+export const getUserById = asyncHandler(async (req: Request, res: Response) => {
+  const result = await Users.findByPk(req.params.id, {
+    include: [
+      {
+        model: UserProfile,
+        as: "profile",
+        attributes: ["bio", "address", "createdAt", "updatedAt", "userId"], // specify the fields you want from UserProfile
+      },
+    ],
+  });
+  return ApiResponse(res, {
+    statusCode: 200,
+    message: "Single User data fetched successfully",
+    data: result,
+  });
+});
+export const updateUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params; // Assuming `id` is passed as part of the URL
+  const { fullName, email, age, phoneNo, password } = req.body;
+
+  // Perform update operation
+  const [affectedCount] = await Users.update(
+    {
+      fullName,
+      email,
+      age,
+      phoneNo,
+      password,
+    },
+    {
+      where: { id }, // The condition for finding the user
+    }
+  );
+
+  if (affectedCount === 0) {
+    throw new ApiError({
+      statusCode: 404,
+      message: "User not found or data not changed",
+    });
+  }
+
+  // Fetch the updated user data (after the update operation)
+  const updatedUser = await Users.findByPk(id);
+
+  if (!updatedUser) {
+    throw new ApiError({
+      statusCode: 404,
+      message: "User not found",
+    });
+  }
+
+  // Return the updated user data
+  return ApiResponse(res, {
+    statusCode: 200,
+    message: "User updated successfully",
+    data: updatedUser,
+  });
+});
+export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params; // Assuming `id` is passed as part of the URL
+
+  // Delete the user
+  const deletedCount = await Users.destroy({
+    where: { id }, // The condition for finding the user
+  });
+
+  if (deletedCount === 0) {
+    throw new ApiError({
+      statusCode: 404,
+      message: "User not found",
+    });
+  }
+
+  // Return response with success message
+  return ApiResponse(res, {
+    statusCode: 200,
+    message: "User deleted successfully",
+    data: null, // No data to return after delete
   });
 });
