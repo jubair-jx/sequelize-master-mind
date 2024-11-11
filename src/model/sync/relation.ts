@@ -48,6 +48,8 @@ const relation = () => {
   orderModel.belongsToMany(productModel, {
     through: "order_product",
     as: "products",
+    foreignKey: "productId",
+    otherKey: "orderId",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   });
