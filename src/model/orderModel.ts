@@ -1,18 +1,14 @@
 import { DataTypes } from "sequelize";
 import { db } from "../config/db";
-import Users from "./UserModel";
 
-const productModel = db.define("products", {
+const orderModel = db.define("orders", {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  price: {
+
+  total: {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
@@ -20,10 +16,10 @@ const productModel = db.define("products", {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Users,
+      model: "Users",
       key: "id",
     },
   },
 });
 
-export default productModel;
+export default orderModel;
